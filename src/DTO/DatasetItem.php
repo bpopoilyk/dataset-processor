@@ -13,4 +13,14 @@ readonly class DatasetItem
         public int $id,
         public string $value
     ) {}
+
+    /**
+     * Entry point for builder usage.
+     *
+     * @return DatasetItemBuilder
+     */
+    public static function builder(): DatasetItemBuilder
+    {
+        return new DatasetItemBuilder();
+    }
 }

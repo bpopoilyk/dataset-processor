@@ -23,11 +23,11 @@ class Fetcher implements FetcherInterface
         sleep(10);
 
         return [
-            new DatasetItem(1, 'Alpha'),
-            new DatasetItem(2, 'Beta'),
-            new DatasetItem(3, 'Gamma'),
-            new DatasetItem(4, 'Delta'),
-            new DatasetItem(5, 'Epsilon'),
+            DatasetItem::builder()->withId(1)->withValue('Alpha')->build(),
+            DatasetItem::builder()->withId(2)->withValue('Beta')->build(),
+            DatasetItem::builder()->withId(3)->withValue('Gamma')->build(),
+            DatasetItem::builder()->withId(4)->withValue('Delta')->build(),
+            DatasetItem::builder()->withId(5)->withValue('Epsilon')->build(),
         ];
     }
 }
