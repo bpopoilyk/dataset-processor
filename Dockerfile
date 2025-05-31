@@ -16,8 +16,8 @@ RUN wget https://get.symfony.com/cli/installer -O - | bash && \
     mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
 
 # Working directory
-WORKDIR /var/www
+WORKDIR /var/www/dsp
 
-EXPOSE 80
+EXPOSE 9000
 
 CMD ["php-fpm"]
