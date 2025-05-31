@@ -1,0 +1,16 @@
+services:
+  dsp-fpm:
+    build: .
+    container_name: dsp-fpm
+    working_dir: /var/www/dsp
+    volumes:
+      - ./:/var/www/dsp
+    depends_on:
+      - dsp-redis
+    ports:
+      - "8080:80"
+
+  dsp-redis:
+    image: redis:7-alpine
+    container_name: dsp-redis
+    restart: always
