@@ -4,15 +4,24 @@ declare(strict_types=1);
 
 namespace App\Service\Cache;
 
+use App\DTO\DatasetItem;
+
 /**
  * Interface for dataset caching logic.
  */
 interface CacheServiceInterface
 {
     /**
-     * Retrieves dataset from cache or storage.
+     * Retrieves dataset from cache.
      *
-     * @return array
+     * @return DatasetItem[]|null
      */
-    public function getDataset(): array;
+    public function getDataset(): ?array;
+
+    /**
+     * Saves dataset to cache.
+     *
+     * @param DatasetItem[] $data
+     */
+    public function saveDataset(array $data): void;
 }
