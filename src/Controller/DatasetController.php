@@ -39,31 +39,31 @@ class DatasetController extends AbstractController
     {
         $lock = $this->lockService->acquireLock();
 
-        if ($lock === null) {
-            $cached = $this->cacheService->getDataset();
+        if ($lock !== null && $lock->isAcquired() === true) {
+            try {
+                $data = $this->fetcher->fetch();
 
-            if ($cached === null) {
-                return $this->json([], 202);
+                $this->cacheService->saveDataset($data);
+
+                return $this->json(
+                    array_map(fn (DatasetItem $item) => $item->toArray(), $data)
+                );
+            } finally {
+                $lock->release();
             }
+        }
+        $cached = $this->cacheService->getDataset();
 
-            $response = new JsonResponse(
-                array_map(fn (DatasetItem $item) => $item->toArray(), $cached),
-                200
-            );
-            $response->headers->set('X-Cache-Status', 'STALE');
-
-            return $response;
+        if ($cached === null) {
+            return $this->json([], 202);
         }
 
-        try {
-            $data = $this->fetcher->fetch();
-            $this->cacheService->saveDataset($data);
+        $response = new JsonResponse(
+            array_map(fn (DatasetItem $item) => $item->toArray(), $cached),
+            200
+        );
+        $response->headers->set('X-Cache-Status', 'STALE');
 
-            return $this->json(
-                array_map(fn (DatasetItem $item) => $item->toArray(), $data)
-            );
-        } finally {
-            $lock->release();
-        }
+        return $response;
     }
 }
