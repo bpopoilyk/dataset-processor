@@ -5,43 +5,46 @@ declare(strict_types=1);
 namespace App\Service\Cache;
 
 use App\DTO\DatasetItem;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
 
-/**
- * CacheService implementation using Redis cache storage.
- */
 class CacheService implements CacheServiceInterface
 {
     private const CACHE_KEY = 'dataset';
     private const CACHE_TTL = 60;
 
     public function __construct(
-        private readonly CacheInterface $cache
+        private readonly CacheItemPoolInterface $cache
     ) {}
 
-    /**
-     * Retrieve dataset from cache or null if not found.
-     */
     public function getDataset(): ?array
     {
-        return $this->cache->get(self::CACHE_KEY, function (ItemInterface $item) {
-            // If cache miss — we don't generate anything yet
-            $item->expiresAfter(self::CACHE_TTL);
+        $item = $this->cache->getItem(self::CACHE_KEY);
+        if (!$item->isHit()) {
             return null;
-        });
+        }
+
+        $cachedArray = $item->get();
+
+        return array_map(
+            fn(array $data) => DatasetItem::builder()
+                ->withId($data['id'])
+                ->withValue($data['value'])
+                ->build(),
+            $cachedArray
+        );
     }
 
-    /**
-     * Save dataset to cache.
-     */
     public function saveDataset(array $data): void
     {
-        $this->cache->delete(self::CACHE_KEY);
+        $item = $this->cache->getItem(self::CACHE_KEY);
+        $item->expiresAfter(self::CACHE_TTL);
 
-        $this->cache->get(self::CACHE_KEY, function (ItemInterface $item) use ($data) {
-            $item->expiresAfter(self::CACHE_TTL);
-            return $data;
-        });
+        $arrayData = array_map(
+            fn(DatasetItem $item) => $item->toArray(),
+            $data
+        );
+
+        $item->set($arrayData);
+        $this->cache->save($item);
     }
 }

@@ -23,4 +23,12 @@ readonly class DatasetItem
     {
         return new DatasetItemBuilder();
     }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'value' => $this->value,
+        ];
+    }
 }
